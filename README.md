@@ -1,7 +1,7 @@
 <img src="https://static.dakboard.com/assets/img/dakboard-logos/dakboard-color-horiz.svg" style="height: 32px;">
 
-DAKboard is a wifi connected wall display for your photos, calendar, news and weather
+DAKboard is a customizable display for photos, calendar, news, weather and so much more! DAKboard makes it easy to get organized so you won’t miss a thing.
 
-DAKboard is designed to be an always on, zero maintenance, ever changing display featuring the content that's important and relevant to you. A modern, wifi connected, digital photo frame. At a glance you can see your upcoming calendar events and weather overlaid on top of photos pulled from popular photo sharing sites, all in a beautifully designed interface.
+See the <a href="https://github.com/dakboard/Cloud-Platform/discussions">Discussions</a> tab for open feature requests and to add your suggestion.
 
-Visit <a href="http://dakboard.com">http://dakboard.com</a> for more info.
+Visit <a href="https://dakboard.com">https://dakboard.com</a> for more info.
