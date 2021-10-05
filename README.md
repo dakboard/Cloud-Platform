@@ -1,4 +1,4 @@
-<img src="http://dakboard.com/img/dakboard-logo.png" alt="DAKboard logo" height="50" />
+<img src="https://static.dakboard.com/assets/img/dakboard-logos/dakboard-color-horiz.svg" style="height: 32px;">
 
 DAKboard is a wifi connected wall display for your photos, calendar, news and weather
 
