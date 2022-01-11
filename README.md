@@ -1,4 +1,4 @@
-<img src="https://static.dakboard.com/assets/img/dakboard-logos/dakboard-color-horiz.svg" style="height: 32px;">
+<img src="https://static.dakboard.com/assets/img/dakboard-logos/dakboard-logo-horiz.png" style="height: 32px;">
 
 DAKboard is a customizable display for photos, calendar, news, weather and so much more! DAKboard makes it easy to get organized so you won’t miss a thing.
 
