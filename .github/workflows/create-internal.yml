@@ -5,30 +5,33 @@ on:
     types: [opened]
 
 jobs:
-  create_internal:
+  create_internal_issue:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create linked issue in dakboard/Internal
-        id: internal
-        uses: peter-evans/create-issue@v5
-        with:
-          token: ${{ secrets.REPO_TOKEN }}
-          repository: dakboard/Internal
-          title: "CP#${{ github.event.issue.number }} — ${{ github.event.issue.title }}"
-          body: |
-            A customer reported the following in the PUBLIC repo:
+      - name: Create issue in dakboard/Internal (no external actions)
+        id: create_internal
+        run: |
+          RESPONSE=$(curl -X POST \
+            -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/dakboard/Internal/issues \
+            -d @- << EOF
+          {
+            "title": "CP#${{ github.event.issue.number }} — ${{ github.event.issue.title }}",
+            "body": "A customer reported the following:\n\n${{ github.event.issue.body }}\n\nCloud-Platform Issue URL: ${{ github.event.issue.html_url }}"
+          }
+EOF
+          )
 
-            ---
-            ${{ github.event.issue.body }}
+          echo "$RESPONSE" > response.json
+          INTERNAL_NUMBER=$(jq '.number' response.json)
+          echo "internal_number=$INTERNAL_NUMBER" >> $GITHUB_OUTPUT
 
-            Public Issue URL: ${{ github.event.issue.html_url }}
-
-      - name: Comment backlink to internal
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.issue.number }}
-          body: |
-            Thanks! We’ve created an internal tracking issue:
-            https://github.com/dakboard/Internal/issues/${{ steps.internal.outputs.issue-number }}
+      - name: Comment backlink in Cloud-Platform
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/dakboard/Cloud-Platform/issues/${{ github.event.issue.number }}/comments \
+            -d "{\"body\": \"Internal tracking issue created: https://github.com/dakboard/Internal/issues/${{ steps.create_internal.outputs.internal_number }}\"}"
