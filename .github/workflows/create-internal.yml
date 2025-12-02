@@ -21,7 +21,7 @@ jobs:
             "title": "CP#${{ github.event.issue.number }} — ${{ github.event.issue.title }}",
             "body": "A customer reported the following:\n\n${{ github.event.issue.body }}\n\nCloud-Platform Issue URL: ${{ github.event.issue.html_url }}"
           }
-EOF
+            EOF
           )
 
           echo "$RESPONSE" > response.json
