@@ -12,22 +12,21 @@ jobs:
       - name: Create issue in dakboard/Internal (no external actions)
         id: create_internal
         run: |
-          curl -s -X POST \
+          RESPONSE=$(curl -X POST \
             -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/dakboard/Internal/issues \
-            -d @- > response.json <<EOF
-{
-  "title": "CP#${{ github.event.issue.number }} — ${{ github.event.issue.title }}",
-  "body": "A customer reported the following:\n\n${{ github.event.issue.body }}\n\nCloud-Platform Issue URL: ${{ github.event.issue.html_url }}"
-}
+            -d @- << EOF
+          {
+            "title": "CP#${{ github.event.issue.number }} — ${{ github.event.issue.title }}",
+            "body": "A customer reported the following:\n\n${{ github.event.issue.body }}\n\nPublic Issue URL: ${{ github.event.issue.html_url }}"
+          }
 EOF
+          )
 
-          echo "Raw API response:"
-          cat response.json
-
+          echo "$RESPONSE" > response.json
           INTERNAL_NUMBER=$(jq '.number' response.json)
-          echo "internal_number=$INTERNAL_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "internal_number=$INTERNAL_NUMBER" >> $GITHUB_OUTPUT
 
       - name: Comment backlink in Cloud-Platform
         run: |
