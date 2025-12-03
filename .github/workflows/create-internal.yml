@@ -6,7 +6,7 @@ on:
 
 jobs:
   create_internal_issue:
-    runs-on: CP-Internal
+    runs-on: [self-hosted, linux, x64, CP-Internal]
 
     steps:
       - name: Create issue in dakboard/Internal (no external actions)
