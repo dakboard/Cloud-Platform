@@ -16,7 +16,7 @@ jobs:
             -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/dakboard/Internal/issues \
-            -d @- <<EOF > response.json
+            -d @- > response.json <<EOF
 {
   "title": "CP#${{ github.event.issue.number }} — ${{ github.event.issue.title }}",
   "body": "A customer reported the following:\n\n${{ github.event.issue.body }}\n\nCloud-Platform Issue URL: ${{ github.event.issue.html_url }}"
