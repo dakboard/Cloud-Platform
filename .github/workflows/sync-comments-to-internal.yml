@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Handle new comment
         run: |
-          # Skip bot comments (prevents loops)
+          # Skip bot comments
           if [ "${{ github.event.comment.user.type }}" = "Bot" ]; then
             echo "Skipping bot comment"
             exit 0
@@ -20,9 +20,7 @@ jobs:
           CP_NUMBER="${{ github.event.issue.number }}"
           TITLE_PREFIX="CP#${CP_NUMBER} —"
 
-          echo "Looking for Internal issue matching prefix: $TITLE_PREFIX"
-
-          # Fetch all Internal issues and find matching one by title
+          # Find internal issue with matching title prefix
           RESP=$(curl -sS \
             -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
@@ -31,20 +29,25 @@ jobs:
           INTERNAL_NUMBER=$(echo "$RESP" | jq -r ".[] | select(.title | startswith(\"${TITLE_PREFIX}\")) | .number" | head -n 1)
 
           if [ -z "$INTERNAL_NUMBER" ] || [ "$INTERNAL_NUMBER" = "null" ]; then
-            echo "No matching internal issue found."
+            echo "Internal issue not found"
             exit 0
           fi
 
-          echo "Found internal issue: #$INTERNAL_NUMBER"
-
-          # Prepare full comment body (escape newlines and quotes for JSON)
-          COMMENT_BODY=$(jq -Rs <<< "${{ github.event.comment.body }}" | sed 's/"/\\"/g')
           COMMENT_AUTHOR="${{ github.event.comment.user.login }}"
           COMMENT_URL="https://github.com/dakboard/Cloud-Platform/issues/${CP_NUMBER}#issuecomment-${{ github.event.comment.id }}"
 
-          FINAL_BODY="**Comment from @${COMMENT_AUTHOR} on Cloud-Platform issue #${CP_NUMBER}:**\n\n${{ github.event.comment.body }}\n\n---\n[View original comment](${COMMENT_URL})"
+          # Build nicely formatted Markdown comment with real newlines
+          FINAL_BODY=$(cat <<EOF
+**Comment from @${COMMENT_AUTHOR} on Cloud-Platform issue #${CP_NUMBER}:**
 
-          # Post full comment into Internal issue
+${{ github.event.comment.body }}
+
+---
+[View original comment](${COMMENT_URL})
+EOF
+          )
+
+          # Post into Internal issue
           curl -sS -X POST \
             -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
