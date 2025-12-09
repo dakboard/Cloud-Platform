@@ -1,0 +1,44 @@
+name: Sync CP comments to Internal
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  sync_comment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Find matching Internal issue and post link
+        run: |
+          # Skip bot comments to avoid noise/loops
+          if [ "${{ github.event.comment.user.type }}" = "Bot" ]; then
+            echo "Bot comment, skipping."
+            exit 0
+          fi
+
+          CP_NUMBER=${{ github.event.issue.number }}
+          TITLE_PREFIX="CP#${{ github.event.issue.number }} —"
+
+          echo "Looking for Internal issue with title starting: $TITLE_PREFIX"
+
+          RESP=$(curl -sS \
+            -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/dakboard/Internal/issues?state=all&per_page=100")
+
+          INTERNAL_NUMBER=$(echo "$RESP" | jq -r ".[] | select(.title | startswith(\"$TITLE_PREFIX\")) | .number" | head -n 1)
+
+          if [ -z "$INTERNAL_NUMBER" ] || [ "$INTERNAL_NUMBER" = "null" ]; then
+            echo "No matching Internal issue for CP#$CP_NUMBER"
+            exit 0
+          fi
+
+          COMMENT_URL="https://github.com/dakboard/Cloud-Platform/issues/${CP_NUMBER}#issuecomment-${{ github.event.comment.id }}"
+          echo "Posting link to Internal issue #$INTERNAL_NUMBER: $COMMENT_URL"
+
+          curl -sS -X POST \
+            -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/dakboard/Internal/issues/$INTERNAL_NUMBER/comments" \
+            -d "{\"body\": \"New comment on Cloud-Platform issue #${CP_NUMBER}: ${COMMENT_URL}\"}"
