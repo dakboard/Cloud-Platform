@@ -1,0 +1,41 @@
+name: Close Cloud-Platform issue when Internal closes
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  close_cp_issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract CP issue number from title
+        id: extract
+        run: |
+          TITLE="${{ github.event.issue.title }}"
+          echo "Internal issue title: $TITLE"
+
+          # Expect titles like: CP#123 — Something something
+          CP_NUMBER=$(echo "$TITLE" | sed -n 's/^CP#\([0-9]\+\) .*/\1/p')
+
+          if [ -z "$CP_NUMBER" ]; then
+            echo "No CP# prefix found in title, skipping."
+            echo "cp_number=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Found CP issue number: $CP_NUMBER"
+          echo "cp_number=$CP_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Close Cloud-Platform issue
+        if: steps.extract.outputs.cp_number != ''
+        run: |
+          CP_NUMBER=${{ steps.extract.outputs.cp_number }}
+
+          echo "Closing Cloud-Platform issue #$CP_NUMBER"
+
+          curl -sS -X PATCH \
+            -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/dakboard/Cloud-Platform/issues/$CP_NUMBER" \
+            -d '{"state":"closed"}'
