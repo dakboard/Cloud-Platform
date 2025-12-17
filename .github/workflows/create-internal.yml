@@ -9,31 +9,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug token identity
-        run: |
-          echo "=== Who am I according to REPO_TOKEN? ==="
-          curl -sS \
-            -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/user
-
-          echo ""
-          echo "=== What repos can this token see (first page)? ==="
-          curl -sS \
-            -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/user/repos?per_page=100"
-
-      - name: Create issue in dakboard/Internal
+      - name: Create issue in dakboard/Internal (safe JSON)
         id: create_internal
+        env:
+          CP_NUMBER: ${{ github.event.issue.number }}
+          CP_TITLE: ${{ github.event.issue.title }}
+          CP_BODY: ${{ github.event.issue.body }}
+          CP_URL: ${{ github.event.issue.html_url }}
         run: |
+          TITLE="CP#${CP_NUMBER} — ${CP_TITLE}"
+          BODY=$(printf "Cloud-Platform issue: %s\n\nCustomer reported:\n\n%s\n" "$CP_URL" "$CP_BODY")
+
+          JSON_PAYLOAD=$(jq -n --arg title "$TITLE" --arg body "$BODY" '{title: $title, body: $body}')
+
           HTTP_STATUS=$(curl -sS -o response.json -w "%{http_code}" \
             -X POST \
             -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/dakboard/Internal/issues \
-            -d "{\"title\":\"CP#${{ github.event.issue.number }} — ${{ github.event.issue.title }}\",\"body\":\"Cloud-Platform issue: ${{ github.event.issue.html_url }}\n\nCustomer reported:\n\n${{ github.event.issue.body }}\"}" \
-          )
+            -d "$JSON_PAYLOAD")
 
           echo "HTTP_STATUS=$HTTP_STATUS"
           echo "API response:"
@@ -44,5 +38,5 @@ jobs:
             exit 1
           fi
 
-          INTERNAL_NUMBER=$(jq '.number' response.json)
+          INTERNAL_NUMBER=$(jq -r '.number' response.json)
           echo "internal_number=$INTERNAL_NUMBER" >> "$GITHUB_OUTPUT"
