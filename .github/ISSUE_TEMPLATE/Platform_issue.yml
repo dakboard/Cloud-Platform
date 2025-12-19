@@ -1,5 +1,5 @@
 name: Platform Issue
-description: Report a Platform / Cloud issue.
+description: Report dakboard site issue.
 labels: ["Platform"]
 body:
   - type: textarea
