@@ -1,0 +1,33 @@
+name: iOS App Issue
+description: Report an iOS application issue.
+labels: ["iOS-App"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: "e.g. 2.8.0"
+    validations:
+      required: false
+
+  - type: input
+    id: device
+    attributes:
+      label: Device / iOS version
+      placeholder: "iPhone 15, iOS 18"
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: false
