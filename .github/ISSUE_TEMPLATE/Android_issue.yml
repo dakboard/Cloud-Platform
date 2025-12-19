@@ -1,0 +1,33 @@
+name: Android App Issue
+description: Report an Android application issue.
+labels: ["Android-App"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: "e.g. 3.4.1"
+    validations:
+      required: false
+
+  - type: input
+    id: device
+    attributes:
+      label: Device / Android version
+      placeholder: "Pixel 8, Android 14"
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: false
