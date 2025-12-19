@@ -1,5 +1,5 @@
 name: Hardware Issue
-description: Report a hardware-os issue.
+description: Report a Hardware-OS/RPi issue.
 labels: ["Hardware"]
 body:
   - type: textarea
