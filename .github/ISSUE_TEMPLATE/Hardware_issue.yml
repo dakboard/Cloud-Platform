@@ -1,0 +1,33 @@
+name: Hardware Issue
+description: Report a hardware-os issue.
+labels: ["Hardware"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the hardware issue.
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: Device model
+      placeholder: "e.g. CPU Mini, CPU v4"
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / photos
+    validations:
+      required: false
