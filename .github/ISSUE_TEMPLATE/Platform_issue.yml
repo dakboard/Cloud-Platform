@@ -1,6 +1,6 @@
 name: Platform Issue
 description: Report a Platform / Cloud issue.
-title: "[Platform] "
+title: 
 labels: ["Platform"]
 body:
   - type: textarea
