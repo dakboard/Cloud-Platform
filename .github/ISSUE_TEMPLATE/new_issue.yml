@@ -1,0 +1,57 @@
+name: Report an Issue
+description: Use this form to report a problem.
+title: "[Issue] "
+labels: ["needs-triage"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Choose the primary area impacted.
+      options:
+        - Platform
+        - Hardware
+        - Android-App
+        - iOS-App
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is the issue?
+      placeholder: Provide a clear description.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1) …\n2) …\n3) …"
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: false
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Version/device/OS/browser (if applicable)
+      placeholder: "e.g., vX.Y, iPhone 15 iOS 18, Pixel 8 Android 15"
+    validations:
+      required: false
