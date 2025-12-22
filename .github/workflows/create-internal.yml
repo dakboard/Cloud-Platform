@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create issue in dakboard/Internal (safe JSON)
+      - name: Create issue in dakboard/Internal (only if Platform)
         id: create_internal
         env:
           CP_NUMBER: ${{ github.event.issue.number }}
@@ -17,6 +17,18 @@ jobs:
           CP_BODY: ${{ github.event.issue.body }}
           CP_URL: ${{ github.event.issue.html_url }}
         run: |
+          set -euo pipefail
+
+          # Check for Platform label
+          HAS_PLATFORM=$(jq -r '.issue.labels[].name' "$GITHUB_EVENT_PATH" | grep -Fx "Platform" || true)
+
+          if [ -z "$HAS_PLATFORM" ]; then
+            echo "Issue #$CP_NUMBER does not have Platform label. Skipping Internal creation."
+            exit 0
+          fi
+
+          echo "Issue #$CP_NUMBER has Platform label. Creating Internal issue."
+
           TITLE="CP#${CP_NUMBER} — ${CP_TITLE}"
           BODY=$(printf "Cloud-Platform issue: %s\n\nCustomer reported:\n\n%s\n" "$CP_URL" "$CP_BODY")
 
