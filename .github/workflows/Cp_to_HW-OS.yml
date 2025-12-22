@@ -1,0 +1,54 @@
+name: Create Hardware-OS Issue
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  create_hardware_os_issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create issue in dakboard/Hardware-OS (only if Hardware-OS)
+        id: create_hardware_os
+        env:
+          CP_NUMBER: ${{ github.event.issue.number }}
+          CP_TITLE: ${{ github.event.issue.title }}
+          CP_BODY: ${{ github.event.issue.body }}
+          CP_URL: ${{ github.event.issue.html_url }}
+        run: |
+          set -euo pipefail
+
+          # Check for Hardware-OS label
+          HAS_HARDWARE_OS=$(jq -r '.issue.labels[].name' "$GITHUB_EVENT_PATH" | grep -Fx "Hardware-OS" || true)
+
+          if [ -z "$HAS_HARDWARE_OS" ]; then
+            echo "Issue #$CP_NUMBER does not have Hardware-OS label. Skipping Hardware-OS creation."
+            exit 0
+          fi
+
+          echo "Issue #$CP_NUMBER has Hardware-OS label. Creating Hardware-OS issue."
+
+          TITLE="CP#${CP_NUMBER} — ${CP_TITLE}"
+          BODY=$(printf "Cloud-Platform issue: %s\n\nCustomer reported:\n\n%s\n" "$CP_URL" "$CP_BODY")
+
+          JSON_PAYLOAD=$(jq -n --arg title "$TITLE" --arg body "$BODY" '{title: $title, body: $body}')
+
+          HTTP_STATUS=$(curl -sS -o response.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/dakboard/Hardware-OS/issues \
+            -d "$JSON_PAYLOAD")
+
+          echo "HTTP_STATUS=$HTTP_STATUS"
+          echo "API response:"
+          cat response.json
+
+          if [ "$HTTP_STATUS" -ne 201 ]; then
+            echo "Failed to create Hardware-OS issue (status $HTTP_STATUS)"
+            exit 1
+          fi
+
+          HW_NUMBER=$(jq -r '.number' response.json)
+          echo "hardware_os_number=$HW_NUMBER" >> "$GITHUB_OUTPUT"
