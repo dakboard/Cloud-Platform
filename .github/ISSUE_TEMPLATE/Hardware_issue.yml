@@ -1,4 +1,4 @@
-name: Hardware Issue
+name: Hardware OS/RPi
 description: Report a Hardware-OS/RPi issue.
 labels: ["Hardware"]
 body:
