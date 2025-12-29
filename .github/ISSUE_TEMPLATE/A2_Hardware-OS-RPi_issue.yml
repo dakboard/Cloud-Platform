@@ -1,6 +1,6 @@
 name: Hardware OS/RPi
 description: Report a Hardware-OS/RPi issue.
-labels: ["Hardware"]
+labels: ["Hardware-OS"]
 body:
   - type: textarea
     id: summary
